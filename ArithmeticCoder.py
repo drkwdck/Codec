@@ -99,10 +99,7 @@ class ArithmeticCoder:
     # TODO после отладки переимновать
     @staticmethod
     def idivide_(a, b):
-        t = np.remainder(a, b)
-        c = a - t
-        d = c / b
-        return (a - np.remainder(a, b)) / b
+        return np.uint64(((a - np.remainder(a, b)) / b).round())
 
     @staticmethod
     def output_0_plus_follow():
