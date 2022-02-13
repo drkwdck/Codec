@@ -1,14 +1,18 @@
 from ArithmeticCoder import ArithmeticCoder
-from SignalReader import SignalReader
+from ImageReader import ImageReader
 from WaveletTransform import WaveletTransform
+from SignalStorage import SignalStorage
 from Quantizer import Quantizer
 import sys
 import numpy as np
 
-ArithmeticCoder.encode_subband(np.array([[1,2],[3,4]]))
+
+image = ImageReader.ReadImage('C:\\Users\\EReshetnikov\\Codec\\Images\\lena_gray_512.tif')
+ArithmeticCoder.encode_subband(image)
+a = SignalStorage.storage
 image_file_path = sys.argv[1]
 print("Чтение исходного файла")
-image = SignalReader.ReadImage(image_file_path)
+image = ImageReader.ReadImage(image_file_path)
 print("Чтение исходного файла завершено")
 
 print("Запуск вейвлет-преобразования")
