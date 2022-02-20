@@ -50,17 +50,19 @@ class ArithmeticCoder:
 
     @staticmethod
     def encode_symbol(symbol):
-        ArithmeticCoder.range = np.uint64(ArithmeticCoder.high - ArithmeticCoder.low + 1)
-        ArithmeticCoder.high = np.uint64(ArithmeticCoder.low \
+        if len(SignalStorage.storage) == 10321:
+            print('312')
+        ArithmeticCoder.range = np.uint64((ArithmeticCoder.high - ArithmeticCoder.low + 1).round())
+        ArithmeticCoder.high = np.uint64((ArithmeticCoder.low \
                                          + ArithmeticCoder.idivide_(ArithmeticCoder.cum_freq[symbol + 1] *
                                                                     ArithmeticCoder.range,
                                                                     ArithmeticCoder.cum_freq[
-                                                                        ArithmeticCoder.NO_OF_SYMBOLS]) - 1)
+                                                                        ArithmeticCoder.NO_OF_SYMBOLS]) - 1).round())
         b = ArithmeticCoder.cum_freq[symbol]
-        ArithmeticCoder.low = np.uint64(ArithmeticCoder.low + \
+        ArithmeticCoder.low = np.uint64((ArithmeticCoder.low + \
                               ArithmeticCoder.idivide_(ArithmeticCoder.cum_freq[symbol]
                                                        * ArithmeticCoder.range,
-                                                       ArithmeticCoder.cum_freq[ArithmeticCoder.NO_OF_SYMBOLS]))
+                                                       ArithmeticCoder.cum_freq[ArithmeticCoder.NO_OF_SYMBOLS])).round())
         a = ArithmeticCoder.cum_freq[symbol + 1]
 
         while True:
@@ -75,7 +77,7 @@ class ArithmeticCoder:
                     # Возможно зацикливание, выбрасываем второй по старшинству бит
                     ArithmeticCoder.high = ArithmeticCoder.high - ArithmeticCoder.FIRST_QTR
                     ArithmeticCoder.low = ArithmeticCoder.low - ArithmeticCoder.FIRST_QTR
-                    ArithmeticCoder.bits_to_follow = ArithmeticCoder.bits_to_follow + 1
+                    ArithmeticCoder.bits_to_follow = ArithmeticCoder.bits_to_follow + np.uint64(1)
                 else:
                     break
 
@@ -85,12 +87,14 @@ class ArithmeticCoder:
     @staticmethod
     def update_model(symbol):
         if ArithmeticCoder.cum_freq[ArithmeticCoder.NO_OF_SYMBOLS] == ArithmeticCoder.MAX_FREQUENCY:
-            ArithmeticCoder.cum = 0
+            ArithmeticCoder.cum = np.uint64(0)
+            frs = []
 
             for k in range(ArithmeticCoder.NO_OF_SYMBOLS):
-                fr = np.uint64((ArithmeticCoder.cum_freq[k + 1] - ArithmeticCoder.cum_freq[k] + 1) / np.uint64(2))
+                fr = np.uint64(((ArithmeticCoder.cum_freq[k + 1] - ArithmeticCoder.cum_freq[k] + 1) / np.uint64(2)))
+                frs.append(fr)
                 ArithmeticCoder.cum_freq[k] = ArithmeticCoder.cum
-                ArithmeticCoder.cum = ArithmeticCoder.cum + fr
+                ArithmeticCoder.cum = np.uint64(ArithmeticCoder.cum + fr)
 
             ArithmeticCoder.cum_freq[ArithmeticCoder.NO_OF_SYMBOLS] = ArithmeticCoder.cum
         for i in range(symbol + 1, ArithmeticCoder.NO_OF_SYMBOLS + 1):
@@ -99,42 +103,45 @@ class ArithmeticCoder:
     # TODO после отладки переимновать
     @staticmethod
     def idivide_(a, b):
+        t = np.remainder(a, b)
+        f = (a - np.remainder(a, b))
+        c = ((a - np.remainder(a, b)) / b).round()
         return np.uint64(((a - np.remainder(a, b)) / b).round())
 
     @staticmethod
     def output_0_plus_follow():
         ArithmeticCoder.buffer = ArithmeticCoder.buffer >> 1
-        ArithmeticCoder.bits_to_go = ArithmeticCoder.bits_to_go - 1
+        ArithmeticCoder.bits_to_go = ArithmeticCoder.bits_to_go - np.uint8(1)
 
         if ArithmeticCoder.bits_to_go == 0:
             SignalStorage.write(ArithmeticCoder.buffer)
-            ArithmeticCoder.bits_to_go = 16
+            ArithmeticCoder.bits_to_go = np.uint8(16)
 
         while ArithmeticCoder.bits_to_follow > 0:
-            ArithmeticCoder.buffer = (ArithmeticCoder.buffer >> 1) + 32768  # TODO магическая литера
-            ArithmeticCoder.bits_to_go = ArithmeticCoder.bits_to_go - 1
+            ArithmeticCoder.buffer = np.uint16((ArithmeticCoder.buffer >> 1) + 32768)  # TODO магическая литера
+            ArithmeticCoder.bits_to_go = np.uint8(ArithmeticCoder.bits_to_go - 1)
 
             if ArithmeticCoder.bits_to_go == 0:
                 SignalStorage.write(ArithmeticCoder.buffer)
-                ArithmeticCoder.bits_to_go = 16
+                ArithmeticCoder.bits_to_go = np.uint8(16)
 
-            ArithmeticCoder.bits_to_follow = ArithmeticCoder.bits_to_follow - 1
+            ArithmeticCoder.bits_to_follow = ArithmeticCoder.bits_to_follow - np.uint16(1)
 
     @staticmethod
     def output_1_plus_follow():
         ArithmeticCoder.buffer = (ArithmeticCoder.buffer >> 1) + 32768  # TODO литера
-        ArithmeticCoder.bits_to_go = ArithmeticCoder.bits_to_go - 1
+        ArithmeticCoder.bits_to_go = np.uint8(ArithmeticCoder.bits_to_go - 1)
 
         if ArithmeticCoder.bits_to_go == 0:
             SignalStorage.write(ArithmeticCoder.buffer)
-            ArithmeticCoder.bits_to_go = 16
+            ArithmeticCoder.bits_to_go = np.uint8(16)
 
         while ArithmeticCoder.bits_to_follow > 0:
-            ArithmeticCoder.buffer = ArithmeticCoder.buffer >> 1
-            ArithmeticCoder.bits_to_go = ArithmeticCoder.bits_to_go - 1
+            ArithmeticCoder.buffer = np.uint16(ArithmeticCoder.buffer >> 1)
+            ArithmeticCoder.bits_to_go = np.uint8(ArithmeticCoder.bits_to_go - 1)
 
             if ArithmeticCoder.bits_to_go == 0:
                 SignalStorage.write(ArithmeticCoder.buffer)
-                ArithmeticCoder.bits_to_go = 16
+                ArithmeticCoder.bits_to_go = np.uint8(16)
 
-            ArithmeticCoder.bits_to_follow = ArithmeticCoder.bits_to_follow - 1
+            ArithmeticCoder.bits_to_follow = np.uint8(ArithmeticCoder.bits_to_follow - 1)
