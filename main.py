@@ -1,4 +1,5 @@
 from ArithmeticCoder import ArithmeticCoder
+from ArithmeticDecoder import ArithmeticDecoder
 from ImageReader import ImageReader
 from WaveletTransform import WaveletTransform
 from SignalStorage import SignalStorage
@@ -7,16 +8,22 @@ import sys
 import numpy as np
 
 
-image = ImageReader.ReadImage('C:\\Users\\EReshetnikov\\Codec\\Images\\lena_gray_512.tif')
-ArithmeticCoder.encode_subband(image)
-a = SignalStorage.storage
-image_file_path = sys.argv[1]
+# image = ImageReader.ReadImage('C:\\Users\\EReshetnikov\\Codec\\Images\\lena_gray_512.tif')
+# ArithmeticCoder.encode_subband(image)
+#
+# ArithmeticCoder.finish_encoding()
+#
+# a = SignalStorage.storage
+#
+# ArithmeticDecoder.decode_subband(np.array(SignalStorage.storage))
+# ArithmeticDecoder.finish_decoding()
+
 print("Чтение исходного файла")
-image = ImageReader.ReadImage(image_file_path)
+image = ImageReader.ReadImage('C:\\Users\\EReshetnikov\\Codec\\Images\\lena_gray_512.tif')
 print("Чтение исходного файла завершено")
 
 print("Запуск вейвлет-преобразования")
-# (A, B, C, D) = WaveletTransform.Transform(image)
+A = WaveletTransform.Transform(image)
 print("Вейвлет-преобразование завершено")
 
 print("Квантование саббэндов")
