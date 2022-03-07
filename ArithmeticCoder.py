@@ -139,7 +139,7 @@ class ArithmeticCoder:
 
     @staticmethod
     def finish_encoding():
-        ArithmeticCoder.bits_to_go = ArithmeticCoder.bits_to_go + np.uint8(1)
+        ArithmeticCoder.bits_to_follow = ArithmeticCoder.bits_to_follow + np.uint8(1)
 
         if ArithmeticCoder.low < ArithmeticCoder.FIRST_QTR:
             ArithmeticCoder.output_0_plus_follow()
