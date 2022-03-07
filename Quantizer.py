@@ -6,4 +6,5 @@ class Quantizer:
 
     @staticmethod
     def Quantize(input_vector: np.ndarray) -> np.ndarray:
-        return np.round(input_vector / Quantizer.quantize_step) * Quantizer.quantize_step
+        quantize_matrix = np.ones(input_vector.shape) * Quantizer.quantize_step
+        return np.sign(input_vector) * np.fix(np.abs(input_vector) / quantize_matrix)

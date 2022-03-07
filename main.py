@@ -12,10 +12,12 @@ import cv2
 
 image = ImageReader.ReadImage('C:\\Users\\EReshetnikov\\Codec\\Images\\lena_gray_512.tif')
 # subbands = pywt.wavedec2(image, 'bior4.4', level=4)
-ArithmeticCoder.encode_subband(np.array([[1, 2, 3, 3],
-                                [1, 2, 3, 2],
-                                [1, 2, 3, 1],
-                                [3, 2, 1, 1]]))
+y = np.array([[1.1, 2.1, 3.1, 3.1],
+                                [1.1, 2.1, 3.1, 2.1],
+                                [1.1, 2.1, 3.1, 1.1],
+                                [3.1, 2.1, 1.1, 1.1]])
+y = Quantizer.Quantize(y)
+ArithmeticCoder.encode_subband()
 
 ArithmeticCoder.finish_encoding()
 a = SignalStorage.storage
