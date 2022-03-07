@@ -11,14 +11,16 @@ import pywt
 import cv2
 
 image = ImageReader.ReadImage('C:\\Users\\EReshetnikov\\Codec\\Images\\lena_gray_512.tif')
-# ArithmeticCoder.encode_subband(image)
-#
-# ArithmeticCoder.finish_encoding()
-#
-# a = SignalStorage.storage
-#
-# ArithmeticDecoder.decode_subband(np.zeros((256, 256))))
-# ArithmeticDecoder.finish_decoding()
+# subbands = pywt.wavedec2(image, 'bior4.4', level=4)
+ArithmeticCoder.encode_subband(np.array([[1, 2, 3, 3],
+                                [1, 2, 3, 2],
+                                [1, 2, 3, 1],
+                                [3, 2, 1, 1]]))
+
+ArithmeticCoder.finish_encoding()
+a = SignalStorage.storage
+b = np.zeros((4, 4))
+ArithmeticDecoder.decode_subband(b)
 
 x = image
 shape = x.shape
@@ -36,9 +38,16 @@ for level in range(4, max_lev + 1):
     # plot subband boundaries of a standard DWT basis
     # axes[0, level].set_title('{} level\ndecomposition'.format(level))
     # compute the 2D DWT
-    c = pywt.wavedec2(x, 'db2', level=level)
-    d = pywt.waverec2(c, 'db2')
+    c = pywt.wavedec2(x, 'bior4.4', level=level)
+    d = pywt.waverec2(c, 'bior4.4')
     # cv2.imshow(d)
+    i = 0
+    for item in c[2]:
+        if i != 2:
+            i = i + 1
+            continue
+        item[:] = 1
+        break
     # normalize each coefficient array independently for better visibility
     c[0] /= np.abs(c[0]).max()
     for detail_level in range(level):
@@ -46,7 +55,7 @@ for level in range(4, max_lev + 1):
     # show the normalized coefficients
     arr, slices = pywt.coeffs_to_array(c)
     # axes[1, 0].imshow(c[0], cmap=plt.cm.gray)
-    axes[1, 0].imshow(d, cmap=plt.cm.gray)
+    axes[1, 0].imshow(arr, cmap=plt.cm.gray)
     axes[1, 0].set_title('Coefficients\n({} level)'.format(level))
     axes[1, 0].set_axis_off()
 plt.tight_layout()

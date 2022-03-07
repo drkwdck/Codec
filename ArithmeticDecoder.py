@@ -29,6 +29,10 @@ class ArithmeticDecoder:
 
     @staticmethod
     def start_decoding():
+        ArithmeticDecoder.bits_to_go = np.uint8(0)
+        ArithmeticDecoder.garbage_bits = np.uint8(0)
+        ArithmeticDecoder.bit = np.uint64(0)
+        ArithmeticDecoder.value = np.uint64(0)
         for i in range(ArithmeticDecoder.BITS_IN_REGISTER):
             ArithmeticDecoder.input_bit()
             ArithmeticDecoder.value = np.uint64((ArithmeticDecoder.value << np.uint64(1)) + ArithmeticDecoder.bit)
@@ -43,10 +47,10 @@ class ArithmeticDecoder:
             ArithmeticDecoder.initialezed = True
 
         for i in range(subband.shape[0]):
-            # for j in range(subband.shape[1]):
-            symbol = ArithmeticDecoder.decode_symbol()
-            ArithmeticDecoder.update_model(symbol - 1)
-            subband[i] = symbol - 1
+            for j in range(subband.shape[1]):
+                symbol = ArithmeticDecoder.decode_symbol()
+                ArithmeticDecoder.update_model(symbol)
+                subband[i][j] = symbol
 
     @staticmethod
     def decode_symbol():
@@ -102,7 +106,7 @@ class ArithmeticDecoder:
                 ArithmeticDecoder.bits_to_go = np.uint8(1)
                 ArithmeticDecoder.buffer = np.uint16(0)
             else:
-                ArithmeticDecoder.buffer = np.uint16(SignalStorage.storage.pop())
+                ArithmeticDecoder.buffer = np.uint16(SignalStorage.storage.pop(0))
                 ArithmeticDecoder.bits_to_go = np.uint8(16)
 
         ArithmeticDecoder.bit = np.uint64(ArithmeticDecoder.get_first_bit(ArithmeticDecoder.buffer))
@@ -131,14 +135,3 @@ class ArithmeticDecoder:
     @staticmethod
     def idivide_(a, b):
         return np.uint64(((a - np.remainder(a, b)) / b).round())
-
-    @staticmethod
-    def finish_decoding():
-        ArithmeticDecoder.bits_to_go = ArithmeticDecoder.bits_to_go + np.uint8(1)
-
-        if ArithmeticDecoder.low < ArithmeticDecoder.FIRST_QTR:
-            ArithmeticDecoder.output_0_plus_follow()
-        else:
-            ArithmeticDecoder.output_1_plus_follow()
-        ArithmeticDecoder.buffer = ArithmeticDecoder.buffer >> ArithmeticDecoder.bits_to_go
-        SignalStorage.write(ArithmeticDecoder.buffer)
