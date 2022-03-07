@@ -1,6 +1,6 @@
 from ArithmeticCoder import ArithmeticCoder
 from ArithmeticDecoder import ArithmeticDecoder
-from ImageReader import ImageReader
+from ImageProvider import ImageProvider
 from WaveletTransform import WaveletTransform
 from SignalStorage import SignalStorage
 from Quantizer import Quantizer
@@ -10,12 +10,13 @@ import matplotlib.pyplot as plt
 import pywt
 import cv2
 
-image = ImageReader.ReadImage('C:\\Users\\EReshetnikov\\Codec\\Images\\lena_gray_512.tif')
+image = ImageProvider.ReadImage('C:\\Users\\EReshetnikov\\Codec\\Images\\lena_gray_512.tif')
 # subbands = pywt.wavedec2(image, 'bior4.4', level=4)
 y = np.array([[1.1, 2.1, 3.1, 3.1],
                                 [1.1, 2.1, 3.1, 2.1],
                                 [1.1, 2.1, 3.1, 1.1],
                                 [3.1, 2.1, 1.1, 1.1]])
+ImageProvider.WriteImage('C:\\Users\\EReshetnikov\\Codec\\Images\\lena_gray_5122.tif', image)
 y = Quantizer.Quantize(y)
 ArithmeticCoder.encode_subband()
 
@@ -64,7 +65,7 @@ plt.tight_layout()
 plt.show()
 
 print("Чтение исходного файла")
-image = ImageReader.ReadImage('C:\\Users\\EReshetnikov\\Codec\\Images\\lena_gray_512.tif')
+image = ImageProvider.ReadImage('C:\\Users\\EReshetnikov\\Codec\\Images\\lena_gray_512.tif')
 print("Чтение исходного файла завершено")
 
 print("Запуск вейвлет-преобразования")
