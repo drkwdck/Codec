@@ -13,26 +13,26 @@ import cv2
 wavelet_transform_levels_count = 4
 
 image = ImageProvider.ReadImage('Images\\lena_gray_512.tif').astype(np.float32)
+image = (image - np.min(image)) / (np.max(image) - np.min(image))
 
-wavelet_transform_result = pywt.wavedec2(np.log(image), 'bior4.4', level=wavelet_transform_levels_count)
+wavelet_transform_result = pywt.wavedec2(image, 'bior4.4', level=wavelet_transform_levels_count)
 subbands = []
 coefs_counts = []
 subband_maxes = []
 
 coefs_counts.append(wavelet_transform_result[0].shape)
 subband_maxes.append(np.max(wavelet_transform_result[0]))
-subbands.append(wavelet_transform_result[0] / 8)
+subbands.append(wavelet_transform_result[0])
 
 for i in range(1, wavelet_transform_levels_count + 1):
     for subband in wavelet_transform_result[i]:
-        subband = subband / 2
         coefs_counts.append(subband.shape)
         subband_maxes.append(np.max(subband))
         subbands.append(subband)
 
 for i in range(len(subbands)):
     subbands[i] = Quantizer.Quantize(subbands[i])
-    subbands[i] = subbands[i] + 100 if i != 0 else subbands[i]
+    subbands[i] = subbands[i] + 128 if i != 0 else subbands[i]
     ArithmeticCoder.encode_subband(subbands[i])
 
 ArithmeticCoder.finish_encoding()
@@ -41,12 +41,7 @@ restored_subbands = []
 for i in range(len(coefs_counts)):
     restored_subband = subbands[i]
     ArithmeticDecoder.decode_subband(restored_subband)
-    restored_subband = Quantizer.dequantize(restored_subband - 100 if i != 0 else restored_subband)
-    restored_subband = restored_subband * 2
-
-    if i == 0:
-        restored_subband = restored_subband * 4
-
+    restored_subband = Quantizer.dequantize(restored_subband - 128 if i != 0 else restored_subband)
     restored_subbands.append(restored_subband)
 
 # ImageProvider.WriteImage('C:\\Users\\EReshetnikov\\Codec\\Images\\lena_gray_resotred.tif', restored_image)
@@ -59,14 +54,18 @@ batch = []
 for i in range(1, len(restored_subbands)):
     if c == 3:
         batch.append(restored_subbands[i])
-        for_wave_rec.append(batch)
+        for_wave_rec.append(tuple(batch))
         batch = []
         c = 1
     else:
-        batch.append(restored_subbands[i])
+        batch.append(np.array(restored_subbands[i]))
         c += 1
 
 
+d = (pywt.waverec2(for_wave_rec, 'bior4.4') * 256).astype(np.uint8)
+ImageProvider.WriteImage('Images\\lena_gray_resotred.tif', d)
+
+cv2.imshow(d)
 x = image
 shape = x.shape
 
