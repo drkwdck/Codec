@@ -26,9 +26,9 @@ class Quantizer:
     def dequantize(subbands: list) -> list:
         dequantized_subbands = []
         for i in range(len(subbands)):
+            if i != 0:
+                subbands[i] -= 128
             quantize_matrix = np.ones(subbands[i].shape) * Quantizer.quantize_step
             dequantized_subband = (subbands[i] + np.sign(subbands[i]) * 0.5) * quantize_matrix
-            if i != 0:
-                dequantized_subband -= 128
             dequantized_subbands.append(dequantized_subband)
         return dequantized_subbands
