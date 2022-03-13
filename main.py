@@ -10,23 +10,67 @@ import matplotlib.pyplot as plt
 import pywt
 import cv2
 
-image = ImageProvider.ReadImage('C:\\Users\\EReshetnikov\\Codec\\Images\\lena_gray_512.tif')
-# subbands = pywt.wavedec2(image, 'bior4.4', level=4)
-y = np.array([[1.1, 2.1, 3.1, 3.1],
-                                [1.1, 2.1, 3.1, 2.1],
-                                [1.1, 2.1, 3.1, 1.1],
-                                [3.1, 2.1, 1.1, 1.1]])
-ImageProvider.WriteImage('C:\\Users\\EReshetnikov\\Codec\\Images\\lena_gray_5122.tif', image)
-y = Quantizer.Quantize(y)
-ArithmeticCoder.encode_subband()
+wavelet_transform_levels_count = 4
+
+image = ImageProvider.ReadImage('Images\\lena_gray_512.tif').astype(np.float32)
+
+wavelet_transform_result = pywt.wavedec2(np.log(image), 'bior4.4', level=wavelet_transform_levels_count)
+subbands = []
+coefs_counts = []
+subband_maxes = []
+
+coefs_counts.append(wavelet_transform_result[0].shape)
+subband_maxes.append(np.max(wavelet_transform_result[0]))
+subbands.append(wavelet_transform_result[0] / 8)
+
+for i in range(1, wavelet_transform_levels_count + 1):
+    for subband in wavelet_transform_result[i]:
+        subband = subband / 2
+        coefs_counts.append(subband.shape)
+        subband_maxes.append(np.max(subband))
+        subbands.append(subband)
+
+for i in range(len(subbands)):
+    subbands[i] = Quantizer.Quantize(subbands[i])
+    subbands[i] = subbands[i] + 100 if i != 0 else subbands[i]
+    ArithmeticCoder.encode_subband(subbands[i])
 
 ArithmeticCoder.finish_encoding()
-a = SignalStorage.storage
-b = np.zeros((4, 4))
-ArithmeticDecoder.decode_subband(b)
+
+restored_subbands = []
+for i in range(len(coefs_counts)):
+    restored_subband = subbands[i]
+    ArithmeticDecoder.decode_subband(restored_subband)
+    restored_subband = Quantizer.dequantize(restored_subband - 100 if i != 0 else restored_subband)
+    restored_subband = restored_subband * 2
+
+    if i == 0:
+        restored_subband = restored_subband * 4
+
+    restored_subbands.append(restored_subband)
+
+# ImageProvider.WriteImage('C:\\Users\\EReshetnikov\\Codec\\Images\\lena_gray_resotred.tif', restored_image)
+
+for_wave_rec = []
+for_wave_rec.append(restored_subbands[0])
+
+c = 1
+batch = []
+for i in range(1, len(restored_subbands)):
+    if c == 3:
+        batch.append(restored_subbands[i])
+        for_wave_rec.append(batch)
+        batch = []
+        c = 1
+    else:
+        batch.append(restored_subbands[i])
+        c += 1
+
 
 x = image
 shape = x.shape
+
+
 max_lev = 4 # how many levels of decomposition to draw
 label_levels = 3 # how many levels to explicitly label on the plots
 fig, axes = plt.subplots(2, 4, figsize=[14, 8])

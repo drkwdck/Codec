@@ -46,7 +46,7 @@ class ArithmeticCoder:
                 ArithmeticCoder.update_model(symbol)
 
                 processed_count = processed_count + 1
-                print(processed_count / (subband.shape[0] * subband.shape[1]))
+                # print(processed_count / (subband.shape[0]))
 
     @staticmethod
     def encode_symbol(symbol):
