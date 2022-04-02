@@ -20,7 +20,10 @@ class ArithmeticDecoder:
     buffer = np.uint16(0)
     c = np.uint16(0)
 
-    cum_freq = [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)]
+    cum_freqs = [[np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
+                 [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
+                 [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
+                 [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)]]
     bits_to_go = np.uint8(16)
     bit = np.uint64(0)
     garbage_bits = np.uint8(0)
@@ -37,38 +40,39 @@ class ArithmeticDecoder:
             ArithmeticDecoder.input_bit()
             ArithmeticDecoder.value = np.uint64((ArithmeticDecoder.value << np.uint64(1)) + ArithmeticDecoder.bit)
 
-        for i in range(129, ArithmeticDecoder.NO_OF_SYMBOLS + 1):
-            ArithmeticDecoder.cum_freq[i] += np.uint64(10000)
+        for cum_freq in ArithmeticDecoder.cum_freqs:
+            for i in range(129, ArithmeticDecoder.NO_OF_SYMBOLS + 1):
+                cum_freq[i] += np.uint64(10000)
 
     @staticmethod
-    def decode_subband(subband: np.ndarray):
+    def decode_subband(subband: np.ndarray, decoded_symbols):
         if not ArithmeticDecoder.initialezed:
             ArithmeticDecoder.start_decoding()
             ArithmeticDecoder.initialezed = True
 
         for i in range(subband.shape[0]):
-            symbol = ArithmeticDecoder.decode_symbol()
-            ArithmeticDecoder.update_model(symbol)
+            model = ArithmeticDecoder.get_model(decoded_symbols, i, int(np.sqrt(subband.shape[0])))
+            symbol = ArithmeticDecoder.decode_symbol(model)
+            ArithmeticDecoder.update_model(symbol, model)
             subband[i] = symbol
+            decoded_symbols.append(symbol)
 
     @staticmethod
-    def decode_symbol():
+    def decode_symbol(cum_freq):
         ArithmeticDecoder.range = np.uint64((ArithmeticDecoder.high - ArithmeticDecoder.low + 1).round())
         ArithmeticDecoder.cum = np.uint64(ArithmeticDecoder.idivide_((ArithmeticDecoder.value - ArithmeticDecoder.low + 1) \
-                                                           * ArithmeticDecoder.cum_freq[ArithmeticDecoder.NO_OF_SYMBOLS] - 1,
+                                                           * cum_freq[ArithmeticDecoder.NO_OF_SYMBOLS] - 1,
                                                            ArithmeticDecoder.range).round())
-        symbol = np.uint16(sum(ArithmeticDecoder.cum_freq <= ArithmeticDecoder.cum)) - 1
+        symbol = np.uint16(sum(cum_freq <= ArithmeticDecoder.cum)) - 1
 
         ArithmeticDecoder.high = np.uint64((ArithmeticDecoder.low \
-                                          + ArithmeticDecoder.idivide_(ArithmeticDecoder.cum_freq[symbol + 1] *
+                                          + ArithmeticDecoder.idivide_(cum_freq[symbol + 1] *
                                                                      ArithmeticDecoder.range,
-                                                                     ArithmeticDecoder.cum_freq[
-                                                                         ArithmeticDecoder.NO_OF_SYMBOLS]) - 1).round())
+                                                                     cum_freq[ArithmeticDecoder.NO_OF_SYMBOLS]) - 1).round())
         ArithmeticDecoder.low = np.uint64((ArithmeticDecoder.low + \
-                                         ArithmeticDecoder.idivide_(ArithmeticDecoder.cum_freq[symbol]
+                                         ArithmeticDecoder.idivide_(cum_freq[symbol]
                                                                   * ArithmeticDecoder.range,
-                                                                  ArithmeticDecoder.cum_freq[
-                                                                      ArithmeticDecoder.NO_OF_SYMBOLS])).round())
+                                                                  cum_freq[ArithmeticDecoder.NO_OF_SYMBOLS])).round())
 
         while True:
             if ArithmeticDecoder.high < ArithmeticDecoder.HALF:
@@ -113,18 +117,18 @@ class ArithmeticDecoder:
         ArithmeticDecoder.bits_to_go = np.uint8(ArithmeticDecoder.bits_to_go - 1)
 
     @staticmethod
-    def update_model(symbol):
-        if ArithmeticDecoder.cum_freq[ArithmeticDecoder.NO_OF_SYMBOLS] == ArithmeticDecoder.MAX_FREQUENCY:
+    def update_model(symbol, cum_freq):
+        if cum_freq[ArithmeticDecoder.NO_OF_SYMBOLS] == ArithmeticDecoder.MAX_FREQUENCY:
             ArithmeticDecoder.cum = np.uint64(0)
 
             for k in range(ArithmeticDecoder.NO_OF_SYMBOLS):
-                fr = np.uint64(((ArithmeticDecoder.cum_freq[k + 1] - ArithmeticDecoder.cum_freq[k] + 1) / np.uint64(2)))
-                ArithmeticDecoder.cum_freq[k] = ArithmeticDecoder.cum
+                fr = np.uint64(((cum_freq[k + 1] - cum_freq[k] + 1) / np.uint64(2)))
+                cum_freq[k] = ArithmeticDecoder.cum
                 ArithmeticDecoder.cum = np.uint64(ArithmeticDecoder.cum + fr)
 
-            ArithmeticDecoder.cum_freq[ArithmeticDecoder.NO_OF_SYMBOLS] = ArithmeticDecoder.cum
+            cum_freq[ArithmeticDecoder.NO_OF_SYMBOLS] = ArithmeticDecoder.cum
         for i in range(symbol + 1, ArithmeticDecoder.NO_OF_SYMBOLS + 1):
-            ArithmeticDecoder.cum_freq[i] = ArithmeticDecoder.cum_freq[i] + np.uint64(1)
+            cum_freq[i] = cum_freq[i] + np.uint64(1)
 
     @staticmethod
     def get_first_bit(value):
@@ -134,3 +138,37 @@ class ArithmeticDecoder:
     @staticmethod
     def idivide_(a, b):
         return np.uint64(((a - np.remainder(a, b)) / b).round())
+
+    @staticmethod
+    def get_model(decoded_symbols: list, current_symbol_ind: int, n_rows: int):
+        neighbors = []
+
+        if current_symbol_ind - n_rows * 2 >= 0:
+            neighbors.append(decoded_symbols[current_symbol_ind - n_rows * 2])
+        else:
+            neighbors.append(0)
+
+        if current_symbol_ind - n_rows - 1 >= 0:
+            neighbors.append(decoded_symbols[current_symbol_ind - n_rows - 1])
+        else:
+            neighbors.append(0)
+
+        if current_symbol_ind - n_rows >= 0:
+            neighbors.append(decoded_symbols[current_symbol_ind - n_rows])
+        else:
+            neighbors.append(0)
+
+        if current_symbol_ind - 1 >= 0:
+            neighbors.append(decoded_symbols[current_symbol_ind - 1])
+        else:
+            neighbors.append(0)
+
+        normed_mean = sum(neighbors) / len(neighbors) / max(neighbors) if max(neighbors) != 0 else 0
+
+        if normed_mean <= 0.7:
+            return ArithmeticDecoder.cum_freqs[3]
+        if normed_mean <= 0.8:
+            return ArithmeticDecoder.cum_freqs[2]
+        if normed_mean <= 0.9:
+            return ArithmeticDecoder.cum_freqs[1]
+        return ArithmeticDecoder.cum_freqs[0]

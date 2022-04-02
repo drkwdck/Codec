@@ -21,43 +21,55 @@ class ArithmeticCoder:
     buffer = np.uint16(0)
     c = np.uint16(0)
 
-    cum_freq = [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)]
+    cum_freqs = [[np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
+                 [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
+                 [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
+                 [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)]]
     bits_to_go = np.uint8(16)
     bits_to_follow = np.uint8(0)
     initialezed = False
 
     @staticmethod
-    def encode_subband(subband: np.ndarray):
+    def encode_subband(subband: np.ndarray, subbands_shape: list):
         if not ArithmeticCoder.initialezed:
-            for i in range(129, ArithmeticCoder.NO_OF_SYMBOLS + 1):
-                ArithmeticCoder.cum_freq[i] += np.uint64(10000)
+            for cum_freq in ArithmeticCoder.cum_freqs:
+                for i in range(129, ArithmeticCoder.NO_OF_SYMBOLS + 1):
+                    cum_freq[i] += np.uint64(10000)
             ArithmeticCoder.initialezed = True
 
         processed_count = 0
+        current_shape = 0
+        subband_i = 0
         for i in range(len(subband)):
                 symbol = np.uint16(subband[i])
+
+                if subband_i == subbands_shape[current_shape]:
+                    current_shape += 1
+                    subband_i = 0
 
                 if symbol > ArithmeticCoder.NO_OF_SYMBOLS:
                     print("Overflow! Decrease quality!")
                     return
 
-                ArithmeticCoder.encode_symbol(symbol)
-                ArithmeticCoder.update_model(symbol)
+                model = ArithmeticCoder.get_model(subband, subband_i, int(np.sqrt(subbands_shape[current_shape])))
+                ArithmeticCoder.encode_symbol(symbol, model)
+                ArithmeticCoder.update_model(symbol, model)
 
                 processed_count = processed_count + 1
+                subband_i += 1
 
     @staticmethod
-    def encode_symbol(symbol):
+    def encode_symbol(symbol, cum_freq):
         ArithmeticCoder.range = np.uint64((ArithmeticCoder.high - ArithmeticCoder.low + 1).round())
         ArithmeticCoder.high = np.uint64((ArithmeticCoder.low \
-                                         + ArithmeticCoder.idivide_(ArithmeticCoder.cum_freq[symbol + 1] *
+                                         + ArithmeticCoder.idivide_(cum_freq[symbol + 1] *
                                                                     ArithmeticCoder.range,
-                                                                    ArithmeticCoder.cum_freq[
+                                                                    cum_freq[
                                                                         ArithmeticCoder.NO_OF_SYMBOLS]) - 1).round())
         ArithmeticCoder.low = np.uint64((ArithmeticCoder.low + \
-                              ArithmeticCoder.idivide_(ArithmeticCoder.cum_freq[symbol]
+                              ArithmeticCoder.idivide_(cum_freq[symbol]
                                                        * ArithmeticCoder.range,
-                                                       ArithmeticCoder.cum_freq[ArithmeticCoder.NO_OF_SYMBOLS])).round())
+                                                       cum_freq[ArithmeticCoder.NO_OF_SYMBOLS])).round())
 
         while True:
             if ArithmeticCoder.high < ArithmeticCoder.HALF:
@@ -79,18 +91,18 @@ class ArithmeticCoder:
             ArithmeticCoder.high = ArithmeticCoder.high + ArithmeticCoder.high + np.uint64(1)
 
     @staticmethod
-    def update_model(symbol):
-        if ArithmeticCoder.cum_freq[ArithmeticCoder.NO_OF_SYMBOLS] == ArithmeticCoder.MAX_FREQUENCY:
+    def update_model(symbol, cum_freq):
+        if cum_freq[ArithmeticCoder.NO_OF_SYMBOLS] == ArithmeticCoder.MAX_FREQUENCY:
             ArithmeticCoder.cum = np.uint64(0)
 
             for k in range(ArithmeticCoder.NO_OF_SYMBOLS):
-                fr = np.uint64(((ArithmeticCoder.cum_freq[k + 1] - ArithmeticCoder.cum_freq[k] + 1) / np.uint64(2)))
-                ArithmeticCoder.cum_freq[k] = ArithmeticCoder.cum
+                fr = np.uint64(((cum_freq[k + 1] - cum_freq[k] + 1) / np.uint64(2)))
+                cum_freq[k] = ArithmeticCoder.cum
                 ArithmeticCoder.cum = np.uint64(ArithmeticCoder.cum + fr)
 
-            ArithmeticCoder.cum_freq[ArithmeticCoder.NO_OF_SYMBOLS] = ArithmeticCoder.cum
+            cum_freq[ArithmeticCoder.NO_OF_SYMBOLS] = ArithmeticCoder.cum
         for i in range(symbol + 1, ArithmeticCoder.NO_OF_SYMBOLS + 1):
-            ArithmeticCoder.cum_freq[i] = ArithmeticCoder.cum_freq[i] + np.uint64(1)
+            cum_freq[i] = cum_freq[i] + np.uint64(1)
 
     # TODO после отладки переимновать
     @staticmethod
@@ -146,4 +158,37 @@ class ArithmeticCoder:
         ArithmeticCoder.buffer = ArithmeticCoder.buffer >> ArithmeticCoder.bits_to_go
         SignalStorage.write(ArithmeticCoder.buffer)
 
-        
+    @staticmethod
+    def get_model(subband: np.ndarray, current_symbol_ind: int, n_rows):
+        neighbors = []
+
+        if current_symbol_ind - n_rows * 2 >= 0:
+            neighbors.append(subband[current_symbol_ind - n_rows * 2])
+        else:
+            neighbors.append(0)
+
+        if current_symbol_ind - n_rows - 1 >= 0:
+            neighbors.append(subband[current_symbol_ind - n_rows - 1])
+        else:
+            neighbors.append(0)
+
+        if current_symbol_ind - n_rows >= 0:
+            neighbors.append(subband[current_symbol_ind - n_rows])
+        else:
+            neighbors.append(0)
+
+        if current_symbol_ind - 1 >= 0:
+            neighbors.append(subband[current_symbol_ind - 1])
+        else:
+            neighbors.append(0)
+
+        normed_mean = sum(neighbors) / len(neighbors) / max(neighbors) if max(neighbors) != 0 else 0
+
+        if normed_mean <= 0.7:
+            return ArithmeticCoder.cum_freqs[3]
+        if normed_mean <= 0.8:
+            return ArithmeticCoder.cum_freqs[2]
+        if normed_mean <= 0.9:
+            return ArithmeticCoder.cum_freqs[1]
+        return ArithmeticCoder.cum_freqs[0]
+
