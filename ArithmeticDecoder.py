@@ -47,10 +47,9 @@ class ArithmeticDecoder:
             ArithmeticDecoder.initialezed = True
 
         for i in range(subband.shape[0]):
-            for j in range(subband.shape[1]):
-                symbol = ArithmeticDecoder.decode_symbol()
-                ArithmeticDecoder.update_model(symbol)
-                subband[i][j] = symbol
+            symbol = ArithmeticDecoder.decode_symbol()
+            ArithmeticDecoder.update_model(symbol)
+            subband[i] = symbol
 
     @staticmethod
     def decode_symbol():

@@ -34,9 +34,8 @@ class ArithmeticCoder:
             ArithmeticCoder.initialezed = True
 
         processed_count = 0
-        for i in range(subband.shape[0]):
-            for j in range(subband.shape[1]):
-                symbol = np.uint16(subband[i][j])
+        for i in range(len(subband)):
+                symbol = np.uint16(subband[i])
 
                 if symbol > ArithmeticCoder.NO_OF_SYMBOLS:
                     print("Overflow! Decrease quality!")
@@ -46,7 +45,6 @@ class ArithmeticCoder:
                 ArithmeticCoder.update_model(symbol)
 
                 processed_count = processed_count + 1
-                # print(processed_count / (subband.shape[0]))
 
     @staticmethod
     def encode_symbol(symbol):

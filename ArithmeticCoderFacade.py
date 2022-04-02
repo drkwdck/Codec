@@ -1,6 +1,7 @@
 import numpy as np
 from ArithmeticCoder import ArithmeticCoder
 from ArithmeticDecoder import ArithmeticDecoder
+from SubbandsWalker import SubbandsWalker
 
 
 class ArithmeticCoderFacade:
@@ -9,8 +10,10 @@ class ArithmeticCoderFacade:
 
     def encode_subbands(self, subbands: list):
         for subband in subbands:
-            self.subband_shapes.append(subband.shape)
-            ArithmeticCoder.encode_subband(subband)
+            self.subband_shapes.append((subband.shape[0] * subband.shape[0]))
+
+        subbands = SubbandsWalker.tranlate_subbands(subbands)
+        ArithmeticCoder.encode_subband(subbands)
         ArithmeticCoder.finish_encoding()
 
     def decode_subbands(self) -> list:
@@ -20,4 +23,4 @@ class ArithmeticCoderFacade:
             decoded_subband = np.zeros(subband_shape)
             ArithmeticDecoder.decode_subband(decoded_subband)
             decoded_subbands.append(decoded_subband)
-        return decoded_subbands
+        return SubbandsWalker.i_tranlate_subbands(decoded_subbands)
