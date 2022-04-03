@@ -1,5 +1,6 @@
 import numpy as np
 
+from OptimalModelSearcher import OptimalModelSearcher
 from WaveletTransform import WaveletTransform
 from ArithmeticCoderFacade import ArithmeticCoderFacade
 from ImageProvider import ImageProvider
@@ -15,7 +16,9 @@ subbands = WaveletTransform.transform(image)
 subbands = Quantizer.quantize(subbands)
 
 coder = ArithmeticCoderFacade()
-coder.encode_subbands(subbands)
+optimal_model_searcher = OptimalModelSearcher()
+coder.encode_subbands(subbands, optimal_model_searcher)
+contexts = optimal_model_searcher.get_SymbolContext_on_optimal_model_map()
 restored_subbands = coder.decode_subbands()
 
 restored_subbands = Quantizer.dequantize(restored_subbands)

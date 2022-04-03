@@ -1,4 +1,6 @@
 import numpy as np
+
+from ModelsSelector import ModelsSelector
 from SignalStorage import SignalStorage
 
 class ArithmeticDecoder:
@@ -141,34 +143,6 @@ class ArithmeticDecoder:
 
     @staticmethod
     def get_model(decoded_symbols: list, current_symbol_ind: int, n_rows: int):
-        neighbors = []
-
-        if current_symbol_ind - n_rows * 2 >= 0:
-            neighbors.append(decoded_symbols[current_symbol_ind - n_rows * 2])
-        else:
-            neighbors.append(0)
-
-        if current_symbol_ind - n_rows - 1 >= 0:
-            neighbors.append(decoded_symbols[current_symbol_ind - n_rows - 1])
-        else:
-            neighbors.append(0)
-
-        if current_symbol_ind - n_rows >= 0:
-            neighbors.append(decoded_symbols[current_symbol_ind - n_rows])
-        else:
-            neighbors.append(0)
-
-        if current_symbol_ind - 1 >= 0:
-            neighbors.append(decoded_symbols[current_symbol_ind - 1])
-        else:
-            neighbors.append(0)
-
-        normed_mean = sum(neighbors) / len(neighbors) / max(neighbors) if max(neighbors) != 0 else 0
-
-        if normed_mean <= 0.7:
-            return ArithmeticDecoder.cum_freqs[3]
-        if normed_mean <= 0.8:
-            return ArithmeticDecoder.cum_freqs[2]
-        if normed_mean <= 0.9:
-            return ArithmeticDecoder.cum_freqs[1]
-        return ArithmeticDecoder.cum_freqs[0]
+        neighbors = ModelsSelector.get_neighbors(decoded_symbols, current_symbol_ind, n_rows)
+        model_index = ModelsSelector.get_model_index(neighbors)
+        return ArithmeticDecoder.cum_freqs[model_index]
