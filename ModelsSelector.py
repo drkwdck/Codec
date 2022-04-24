@@ -28,7 +28,7 @@ class ModelsSelector:
 
     @staticmethod
     def get_model_index(neighbors: list) -> int:
-        normed_mean = sum(neighbors) / len(neighbors) / max(neighbors) if max(neighbors) != 0 else 0
+        normed_mean = sum(neighbors) / len(neighbors) / 256
 
         if normed_mean <= 0.5:
             return 3

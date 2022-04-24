@@ -29,7 +29,7 @@ class ArithmeticCoder:
                  [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)]]
     bits_to_go = np.uint8(16)
     bits_to_follow = np.uint8(0)
-    initialezed = True
+    initialezed = False
 
     @staticmethod
     def encode_subband(subband: np.ndarray, subbands_shape: list):
@@ -94,7 +94,6 @@ class ArithmeticCoder:
 
     @staticmethod
     def update_model(symbol, cum_freq):
-        return
         if cum_freq[ArithmeticCoder.NO_OF_SYMBOLS] == ArithmeticCoder.MAX_FREQUENCY:
             ArithmeticCoder.cum = np.uint64(0)
 

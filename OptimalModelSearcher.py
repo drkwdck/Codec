@@ -35,8 +35,8 @@ class OptimalModelSearcher:
 
     def get_sample(self):
         sample = []
-        for (context, model) in self._context_on_optimal_model:
+        for context in self._context_on_optimal_model:
             row = context.get_neighbours()
-            row.append(model)
+            row.append(self._context_on_optimal_model[context])
             sample.append(row)
         return np.array(sample)
