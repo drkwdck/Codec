@@ -10,7 +10,10 @@ from Quantizer import Quantizer
 # чтение изображения
 
 images = ['Images\\goldhill2.tif', 'Images\\Barbara.png', 'Images\\Lena.tif']
-ArithmeticCoder.cum_freqs = np.loadtxt('cum_freqs.txt', dtype=np.uint64, delimiter=',')
+ArithmeticCoder.cum_freqs = [np.loadtxt('cum_freqs_0.txt', delimiter=',', dtype=np.uint64),
+                                np.loadtxt('cum_freqs_1.txt', delimiter=',', dtype=np.uint64),
+                                np.loadtxt('cum_freqs_2.txt', delimiter=',', dtype=np.uint64),
+                                np.loadtxt('cum_freqs_3.txt', delimiter=',', dtype=np.uint64)]
 for image_name in images:
     print(image_name)
     image = ImageProvider.read_with_norm(image_name).astype(np.float32)
@@ -29,3 +32,4 @@ for image_name in images:
     # restored_subbands = Quantizer.dequantize(restored_subbands)
     #
     # image = WaveletTransform.i_transform(restored_subbands)
+    np.savetxt("OptimalModelSearcher_{0}.txt".format(image_name), optimal_model_searcher.get_sample(), delimiter=',', fmt="%i")

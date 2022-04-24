@@ -32,3 +32,11 @@ class OptimalModelSearcher:
 
     def get_SymbolContext_on_optimal_model_map(self):
         return self._context_on_optimal_model
+
+    def get_sample(self):
+        sample = []
+        for (context, model) in self._context_on_optimal_model:
+            row = context.get_neighbours()
+            row.append(model)
+            sample.append(row)
+        return np.array(sample)
