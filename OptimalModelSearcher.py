@@ -29,6 +29,7 @@ class OptimalModelSearcher:
                     min_entropy = entropy
                     optimal_model_index = j
             self._context_on_optimal_model[context] = optimal_model_index
+            subband_i += 1
 
     def get_SymbolContext_on_optimal_model_map(self):
         return self._context_on_optimal_model

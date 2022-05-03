@@ -8,17 +8,7 @@ from ImageProvider import ImageProvider
 from Quantizer import Quantizer
 
 def set_sample():
-    import numpy as np
-
-    from OptimalModelSearcher import OptimalModelSearcher
-    from WaveletTransform import WaveletTransform
-    from ArithmeticCoderFacade import ArithmeticCoderFacade
-    from ArithmeticCoder import ArithmeticCoder
-    from ImageProvider import ImageProvider
-    from Quantizer import Quantizer
-
     # чтение изображения
-
     images = ['goldhill2.tif', 'Barbara.png', 'Lena.tif']
     ArithmeticCoder.cum_freqs = [np.loadtxt('cum_freqs_0.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_1.txt', delimiter=',', dtype=np.uint64),
@@ -72,4 +62,5 @@ def set_models():
     np.savetxt('cum_freqs_2.txt', ArithmeticCoder.cum_freqs[2], delimiter=',', fmt="%i")
     np.savetxt('cum_freqs_3.txt', ArithmeticCoder.cum_freqs[3], delimiter=',', fmt="%i")
 
-set_models()
+
+set_sample()
