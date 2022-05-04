@@ -23,21 +23,21 @@ class ArithmeticCoder:
     buffer = np.uint16(0)
     c = np.uint16(0)
 
-    cum_freqs = [[np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
-                 [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
-                 [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
-                 [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)]]
+    # cum_freqs = [[np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
+    #              [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
+    #              [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
+    #              [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)]]
     bits_to_go = np.uint8(16)
     bits_to_follow = np.uint8(0)
     initialezed = False
 
     @staticmethod
     def encode_subband(subband: np.ndarray, subbands_shape: list):
-        if not ArithmeticCoder.initialezed:
-            for cum_freq in ArithmeticCoder.cum_freqs:
-                for i in range(129, ArithmeticCoder.NO_OF_SYMBOLS + 1):
-                    cum_freq[i] += np.uint64(10000)
-            ArithmeticCoder.initialezed = True
+        # if not ArithmeticCoder.initialezed:
+        #     for cum_freq in ArithmeticCoder.cum_freqs:
+        #         for i in range(129, ArithmeticCoder.NO_OF_SYMBOLS + 1):
+        #             cum_freq[i] += np.uint64(10000)
+        #     ArithmeticCoder.initialezed = True
 
         processed_count = 0
         current_shape = 0
@@ -55,7 +55,7 @@ class ArithmeticCoder:
 
                 model = ArithmeticCoder.get_model(subband, subband_i, int(np.sqrt(subbands_shape[current_shape])))
                 ArithmeticCoder.encode_symbol(symbol, model)
-                ArithmeticCoder.update_model(symbol, model)
+                # ArithmeticCoder.update_model(symbol, model)
 
                 processed_count = processed_count + 1
                 subband_i += 1
