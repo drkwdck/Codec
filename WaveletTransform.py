@@ -29,4 +29,5 @@ class WaveletTransform:
             else:
                 subbands_batch.append(np.array(subbands[i]))
                 inserted_subbands_count += 1
-        return (pywt.waverec2(restored_image, 'bior4.4') * 256).astype(np.uint8)
+        # return (pywt.waverec2(restored_image, 'bior4.4') * 256).astype(np.uint8)
+        return pywt.waverec2(restored_image, 'bior4.4')

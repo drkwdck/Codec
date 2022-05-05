@@ -1,5 +1,3 @@
-import numpy as np
-
 class ModelsSelector:
     @staticmethod
     def get_neighbors(previous_symbols: list, current_symbol_ind: int, n_rows: int) -> list:
