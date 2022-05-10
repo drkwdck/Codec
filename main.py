@@ -63,12 +63,14 @@ def set_models():
         coder = ArithmeticCoderFacade()
         optimal_model_searcher = OptimalModelSearcher()
         coder.encode_subbands(subbands, optimal_model_searcher)
-        # contexts = optimal_model_searcher.get_SymbolContext_on_optimal_model_map()
-        # restored_subbands = coder.decode_subbands()
+        contexts = optimal_model_searcher.get_SymbolContext_on_optimal_model_map()
+        restored_subbands = coder.decode_subbands()
         #
-        # restored_subbands = Quantizer.dequantize(restored_subbands)
+        restored_subbands = Quantizer.dequantize(restored_subbands)
         #
-        # image = WaveletTransform.i_transform(restored_subbands)
+        image = WaveletTransform.i_transform(restored_subbands)
+        ImageProvider.WriteImage('123.tif', image)
+        ImageProvider.WriteImage('123.png', image)
 
     np.savetxt('cum_freqs_0.txt', ArithmeticCoder.cum_freqs[0], delimiter=',', fmt="%i")
     np.savetxt('cum_freqs_1.txt', ArithmeticCoder.cum_freqs[1], delimiter=',', fmt="%i")
@@ -76,4 +78,4 @@ def set_models():
     np.savetxt('cum_freqs_3.txt', ArithmeticCoder.cum_freqs[3], delimiter=',', fmt="%i")
 
 
-set_sample()
+set_models()

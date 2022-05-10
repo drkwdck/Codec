@@ -12,13 +12,15 @@ class OptimalModelSearcher:
     def init_SymbolContext_on_optimal_model_map(self, all_symbols: np.ndarray, subbands_shape, cum_freqs):
         current_shape = 0
         subband_i = 0
+        subbands_shift = 0
         for i in range(len(all_symbols)):
             symbol = all_symbols[i]
             if subband_i == subbands_shape[current_shape]:
                 current_shape += 1
                 subband_i = 0
+                subbands_shift = i - 1
 
-            neighbors = ModelsSelector.get_neighbors(all_symbols, subband_i, int(np.sqrt(subbands_shape[current_shape])))
+            neighbors = ModelsSelector.get_neighbors(all_symbols, subband_i, int(np.sqrt(subbands_shape[current_shape])), subbands_shift)
             context = SymbolContext(symbol, neighbors)
 
             min_entropy = 2 ** 15

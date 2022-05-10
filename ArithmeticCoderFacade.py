@@ -21,8 +21,10 @@ class ArithmeticCoderFacade:
         decoded_subbands = []
 
         decoded_syms = []
+        subband_shift = 0
         for subband_shape in self.subband_shapes:
             decoded_subband = np.zeros(subband_shape)
-            ArithmeticDecoder.decode_subband(decoded_subband, decoded_syms)
+            ArithmeticDecoder.decode_subband(decoded_subband, decoded_syms, subband_shift)
             decoded_subbands.append(decoded_subband)
+            subband_shift = len(decoded_syms) - 1
         return SubbandsWalker.i_tranlate_subbands(decoded_subbands)

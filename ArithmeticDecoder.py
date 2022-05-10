@@ -22,10 +22,10 @@ class ArithmeticDecoder:
     buffer = np.uint16(0)
     c = np.uint16(0)
 
-    # cum_freqs = [[np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
-    #              [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
-    #              [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
-    #              [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)]]
+    cum_freqs = [[np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
+                 [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
+                 [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
+                 [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)]]
     bits_to_go = np.uint8(16)
     bit = np.uint64(0)
     garbage_bits = np.uint8(0)
@@ -42,20 +42,20 @@ class ArithmeticDecoder:
             ArithmeticDecoder.input_bit()
             ArithmeticDecoder.value = np.uint64((ArithmeticDecoder.value << np.uint64(1)) + ArithmeticDecoder.bit)
 
-        # for cum_freq in ArithmeticDecoder.cum_freqs:
-        #     for i in range(129, ArithmeticDecoder.NO_OF_SYMBOLS + 1):
-        #         cum_freq[i] += np.uint64(10000)
+        for cum_freq in ArithmeticDecoder.cum_freqs:
+            for i in range(129, ArithmeticDecoder.NO_OF_SYMBOLS + 1):
+                cum_freq[i] += np.uint64(10000)
 
     @staticmethod
-    def decode_subband(subband: np.ndarray, decoded_symbols):
+    def decode_subband(subband: np.ndarray, decoded_symbols, subband_shift: int):
         if not ArithmeticDecoder.initialezed:
             ArithmeticDecoder.start_decoding()
             ArithmeticDecoder.initialezed = True
 
         for i in range(subband.shape[0]):
-            model = ArithmeticDecoder.get_model(decoded_symbols, i, int(np.sqrt(subband.shape[0])))
+            model = ArithmeticDecoder.get_model(decoded_symbols, i, int(np.sqrt(subband.shape[0])), subband_shift)
             symbol = ArithmeticDecoder.decode_symbol(model)
-            # ArithmeticDecoder.update_model(symbol, model)
+            ArithmeticDecoder.update_model(symbol, model)
             subband[i] = symbol
             decoded_symbols.append(symbol)
 
@@ -142,7 +142,7 @@ class ArithmeticDecoder:
         return np.uint64(((a - np.remainder(a, b)) / b).round())
 
     @staticmethod
-    def get_model(decoded_symbols: list, current_symbol_ind: int, n_rows: int):
-        neighbors = ModelsSelector.get_neighbors(decoded_symbols, current_symbol_ind, n_rows)
+    def get_model(decoded_symbols: list, current_symbol_ind: int, n_rows: int, subband_shift: int):
+        neighbors = ModelsSelector.get_neighbors(decoded_symbols, current_symbol_ind, n_rows, subband_shift)
         model_index = ModelsSelector.get_model_index(neighbors)
         return ArithmeticDecoder.cum_freqs[model_index]
