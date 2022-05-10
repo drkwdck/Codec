@@ -28,10 +28,10 @@ class ModelsSelector:
     def get_model_index(neighbors: list) -> int:
         normed_mean = sum(neighbors) / len(neighbors) / 256
 
-        if normed_mean <= 0.5:
+        if normed_mean <= 0.45:
             return 3
-        if normed_mean <= 0.7:
+        if normed_mean <= 0.47:
             return 2
-        if normed_mean <= 0.9:
+        if normed_mean <= 0.5:
             return 1
         return 0

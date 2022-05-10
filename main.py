@@ -12,7 +12,7 @@ from SignalStorage import SignalStorage
 
 def set_sample():
     # чтение изображения
-    images = ['goldhill2.tif', 'Barbara.png', 'Lena.tif']
+    images = ['Lena.tif']
     ArithmeticCoder.cum_freqs = [np.loadtxt('cum_freqs_0.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_1.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_2.txt', delimiter=',', dtype=np.uint64),
@@ -45,6 +45,8 @@ def set_sample():
         square_error = np.sum(np.sum((image_r - image) ** 2))
         psnr = 10 * np.log10((512 * 512 / square_error))
         bpp = 8 * coded_image_len / 512 / 512
+        np.savetxt("OptimalModelSearcher_{0}.txt".format(image_name), optimal_model_searcher.get_sample(),
+                   delimiter=',', fmt="%i")
         print("PSNR = {0} bpp = {1}".format(psnr, bpp))
 
 def set_models():
