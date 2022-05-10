@@ -1,4 +1,9 @@
+import joblib
+from sklearn.ensemble import RandomForestClassifier
+
 class ModelsSelector:
+    Model = joblib.load("my_random_forest.joblib")
+
     @staticmethod
     def get_neighbors(previous_symbols: list, current_symbol_ind: int, n_rows: int, subband_shift: int) -> list:
         neighbors = []
@@ -26,6 +31,7 @@ class ModelsSelector:
 
     @staticmethod
     def get_model_index(neighbors: list) -> int:
+        # return ModelsSelector.Model.predict([neighbors])[0]
         normed_mean = sum(neighbors) / len(neighbors) / 256
 
         if normed_mean <= 0.45:
