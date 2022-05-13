@@ -1,5 +1,5 @@
 import numpy as np
-
+import os
 from OptimalModelSearcher import OptimalModelSearcher
 from WaveletTransform import WaveletTransform
 from ArithmeticCoderFacade import ArithmeticCoderFacade
@@ -12,7 +12,7 @@ from SignalStorage import SignalStorage
 
 def set_sample():
     # чтение изображения
-    images = ['Lena.tif']
+    train_image_directory = 'TrainImages'
     ArithmeticCoder.cum_freqs = [np.loadtxt('cum_freqs_0.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_1.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_2.txt', delimiter=',', dtype=np.uint64),
@@ -23,9 +23,9 @@ def set_sample():
                                  np.loadtxt('cum_freqs_2.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_3.txt', delimiter=',', dtype=np.uint64)]
 
-    for image_name in images:
+    for image_name in ['17.png']:
         print(image_name)
-        image = ImageProvider.read_with_norm('Images\\' + image_name).astype(np.float32)
+        image = ImageProvider.read_with_norm(os.path.join('TrainImages', image_name)).astype(np.float32)
         # вейвлет-преобрзование
         subbands = WaveletTransform.transform(image)
 
@@ -35,23 +35,29 @@ def set_sample():
         coder = ArithmeticCoderFacade()
         optimal_model_searcher = OptimalModelSearcher()
         coder.encode_subbands(subbands, optimal_model_searcher)
-        coded_image_len = len(SignalStorage.storage)
-        restored_subbands = coder.decode_subbands()
+        # coded_image_len = len(SignalStorage.storage)
+        # restored_subbands = coder.decode_subbands()
 
-        restored_subbands = Quantizer.dequantize(restored_subbands)
+        # restored_subbands = Quantizer.dequantize(restored_subbands)
 
-        image_r = WaveletTransform.i_transform(restored_subbands)
+        # image_r = WaveletTransform.i_transform(restored_subbands)
 
-        square_error = np.sum(np.sum((image_r - image) ** 2))
-        psnr = 10 * np.log10((512 * 512 / square_error))
-        bpp = 8 * coded_image_len / 512 / 512
+        # square_error = np.sum(np.sum((image_r - image) ** 2))
+        # psnr = 10 * np.log10((512 * 512 / square_error))
+        # bpp = 8 * coded_image_len / 512 / 512
         np.savetxt("OptimalModelSearcher_{0}.txt".format(image_name), optimal_model_searcher.get_sample(),
                    delimiter=',', fmt="%i")
-        print("PSNR = {0} bpp = {1}".format(psnr, bpp))
+        # print("PSNR = {0} bpp = {1}".format(psnr, bpp))
 
 def set_models():
-    images = ['Images\\Lena.tif']
-    for image_name in images:
+    ArithmeticCoder.cum_freqs = [np.loadtxt('cum_freqs_0.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_1.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_2.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_3.txt', delimiter=',', dtype=np.uint64)]
+
+    train_image_directory = 'TrainImages'
+    images = [os.path.join(train_image_directory, img) for img in os.listdir(train_image_directory)]
+    for image_name in ['TrainImages/17.png']:
         print(image_name)
         image = ImageProvider.read_with_norm(image_name).astype(np.float32)
         # вейвлет-преобрзование
