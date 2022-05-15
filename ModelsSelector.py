@@ -32,7 +32,7 @@ class ModelsSelector:
     @staticmethod
     def get_model_index(neighbors: list) -> int:
         return ModelsSelector.Model.predict([neighbors])[0]
-        normed_mean = sum(neighbors) / len(neighbors) / 256
+        # normed_mean = sum(neighbors) / len(neighbors) / 256
 
         if normed_mean <= 0.45:
             return 3

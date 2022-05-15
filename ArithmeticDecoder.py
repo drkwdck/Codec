@@ -51,6 +51,7 @@ class ArithmeticDecoder:
         if not ArithmeticDecoder.initialezed:
             ArithmeticDecoder.start_decoding()
             ArithmeticDecoder.initialezed = True
+        print("decode_subband")
 
         for i in range(subband.shape[0]):
             model = ArithmeticDecoder.get_model(decoded_symbols, i, int(np.sqrt(subband.shape[0])), subband_shift)

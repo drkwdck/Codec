@@ -46,6 +46,9 @@ class ArithmeticCoder:
         for i in range(len(subband)):
                 symbol = np.uint16(subband[i])
 
+                if i % 10_000 == 0:
+                    print("encode {0}".format(i / len(subband)))
+
                 if subband_i == subbands_shape[current_shape]:
                     current_shape += 1
                     subband_i = 0

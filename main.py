@@ -23,7 +23,7 @@ def set_sample():
                                  np.loadtxt('cum_freqs_2.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_3.txt', delimiter=',', dtype=np.uint64)]
 
-    for image_name in ['Lena.tif']:
+    for image_name in ['goldhill2.tif']:
         print(image_name)
         image = ImageProvider.read_with_norm(os.path.join(image_directory, image_name)).astype(np.float32)
         # вейвлет-преобрзование
