@@ -47,14 +47,15 @@ class ArithmeticDecoder:
         #         cum_freq[i] += np.uint64(10000)
 
     @staticmethod
-    def decode_subband(subband: np.ndarray, decoded_symbols, subband_shift: int):
+    def decode_subband(subband: np.ndarray, decoded_symbols, subband_shift: int, subband_number: int):
         if not ArithmeticDecoder.initialezed:
             ArithmeticDecoder.start_decoding()
             ArithmeticDecoder.initialezed = True
         print("decode_subband")
 
         for i in range(subband.shape[0]):
-            model = ArithmeticDecoder.get_model(decoded_symbols, i, int(np.sqrt(subband.shape[0])), subband_shift)
+            model = ArithmeticDecoder.get_model(decoded_symbols, i, int(np.sqrt(subband.shape[0])), subband_shift,
+                                                subband_number)
             symbol = ArithmeticDecoder.decode_symbol(model)
             # ArithmeticDecoder.update_model(symbol, model)
             subband[i] = symbol
@@ -143,7 +144,8 @@ class ArithmeticDecoder:
         return np.uint64(((a - np.remainder(a, b)) / b).round())
 
     @staticmethod
-    def get_model(decoded_symbols: list, current_symbol_ind: int, n_rows: int, subband_shift: int):
+    def get_model(decoded_symbols: list, current_symbol_ind: int, n_rows: int, subband_shift: int,
+                  subband_number):
         neighbors = ModelsSelector.get_neighbors(decoded_symbols, current_symbol_ind, n_rows, subband_shift)
-        model_index = ModelsSelector.get_model_index(neighbors)
+        model_index = ModelsSelector.get_model_index(neighbors, subband_number)
         return ArithmeticDecoder.cum_freqs[model_index]

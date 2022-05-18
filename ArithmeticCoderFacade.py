@@ -9,7 +9,7 @@ class ArithmeticCoderFacade:
         self.subband_shapes = []
 
     def encode_subbands(self, subbands: list, model_searcher: OptimalModelSearcher):
-        for subband in subbands:
+        for subband_number, subband in enumerate(subbands):
             self.subband_shapes.append((subband.shape[0] * subband.shape[0]))
 
         subbands = SubbandsWalker.tranlate_subbands(subbands)
@@ -22,9 +22,9 @@ class ArithmeticCoderFacade:
 
         decoded_syms = []
         subband_shift = 0
-        for subband_shape in self.subband_shapes:
+        for subband_number, subband_shape in enumerate(self.subband_shapes):
             decoded_subband = np.zeros(subband_shape)
-            ArithmeticDecoder.decode_subband(decoded_subband, decoded_syms, subband_shift)
+            ArithmeticDecoder.decode_subband(decoded_subband, decoded_syms, subband_shift, subband_number)
             decoded_subbands.append(decoded_subband)
             subband_shift = len(decoded_syms) - 1
         return SubbandsWalker.i_tranlate_subbands(decoded_subbands)

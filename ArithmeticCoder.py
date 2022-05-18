@@ -58,7 +58,8 @@ class ArithmeticCoder:
                     print("Overflow! Decrease quality!")
                     return
 
-                model = ArithmeticCoder.get_model(subband, subband_i, int(np.sqrt(subbands_shape[current_shape])), subband_shift)
+                model = ArithmeticCoder.get_model(subband, subband_i, int(np.sqrt(subbands_shape[current_shape])),
+                                                  subband_shift, current_shape)
                 ArithmeticCoder.encode_symbol(symbol, model)
                 # ArithmeticCoder.update_model(symbol, model)
 
@@ -166,8 +167,8 @@ class ArithmeticCoder:
         SignalStorage.write(ArithmeticCoder.buffer)
 
     @staticmethod
-    def get_model(subband: np.ndarray, current_symbol_ind: int, n_rows, subband_shift: int):
+    def get_model(subband: np.ndarray, current_symbol_ind: int, n_rows, subband_shift: int, subband_number):
         neighbors = ModelsSelector.get_neighbors(subband, current_symbol_ind, n_rows, subband_shift)
-        model_index = ModelsSelector.get_model_index(neighbors)
+        model_index = ModelsSelector.get_model_index(neighbors, subband_number)
         return ArithmeticCoder.cum_freqs[model_index]
 
