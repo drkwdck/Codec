@@ -25,6 +25,7 @@ class ArithmeticDecoder:
     # cum_freqs = [[np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
     #              [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
     #              [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
+    #              [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)],
     #              [np.uint64(x) for x in np.arange(0, NO_OF_SYMBOLS + 1, 1)]]
     bits_to_go = np.uint8(16)
     bit = np.uint64(0)

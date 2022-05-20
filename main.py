@@ -12,18 +12,20 @@ from SignalStorage import SignalStorage
 
 def set_sample():
     # чтение изображения
-    image_directory = 'TestImages'
+    image_directory = 'TrainImages'
     ArithmeticCoder.cum_freqs = [np.loadtxt('cum_freqs_0.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_1.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_2.txt', delimiter=',', dtype=np.uint64),
-                                 np.loadtxt('cum_freqs_3.txt', delimiter=',', dtype=np.uint64)]
+                                 np.loadtxt('cum_freqs_3.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_4.txt', delimiter=',', dtype=np.uint64)]
 
     ArithmeticDecoder.cum_freqs = [np.loadtxt('cum_freqs_0.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_1.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_2.txt', delimiter=',', dtype=np.uint64),
-                                 np.loadtxt('cum_freqs_3.txt', delimiter=',', dtype=np.uint64)]
+                                 np.loadtxt('cum_freqs_3.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_4.txt', delimiter=',', dtype=np.uint64)]
 
-    for image_name in ['goldhill2.tif']:
+    for image_name in ['17.png']:
         print(image_name)
         image = ImageProvider.read_with_norm(os.path.join(image_directory, image_name)).astype(np.float32)
         # вейвлет-преобрзование
@@ -53,7 +55,8 @@ def set_models():
     ArithmeticCoder.cum_freqs = [np.loadtxt('cum_freqs_0.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_1.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_2.txt', delimiter=',', dtype=np.uint64),
-                                 np.loadtxt('cum_freqs_3.txt', delimiter=',', dtype=np.uint64)]
+                                 np.loadtxt('cum_freqs_3.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_4.txt', delimiter=',', dtype=np.uint64)]
 
     train_image_directory = 'TrainImages'
     images = [os.path.join(train_image_directory, img) for img in os.listdir(train_image_directory)]
@@ -82,6 +85,7 @@ def set_models():
     np.savetxt('cum_freqs_1.txt', ArithmeticCoder.cum_freqs[1], delimiter=',', fmt="%i")
     np.savetxt('cum_freqs_2.txt', ArithmeticCoder.cum_freqs[2], delimiter=',', fmt="%i")
     np.savetxt('cum_freqs_3.txt', ArithmeticCoder.cum_freqs[3], delimiter=',', fmt="%i")
+    np.savetxt('cum_freqs_4.txt', ArithmeticCoder.cum_freqs[4], delimiter=',', fmt="%i")
 
 
 set_sample()
