@@ -2,7 +2,7 @@ import numpy as np
 
 
 class Quantizer:
-    quantize_step = 0.0726
+    quantize_step = 0.1726
 
     @staticmethod
     def Quantize(input_vector: np.ndarray) -> np.ndarray:
