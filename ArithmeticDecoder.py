@@ -61,7 +61,7 @@ class ArithmeticDecoder:
             model = ArithmeticDecoder.get_model(decoded_symbols, i, int(np.sqrt(subband.shape[0])), subband_shift,
                                                 subband_number)
             symbol = ArithmeticDecoder.decode_symbol(model)
-            # ArithmeticDecoder.update_model(symbol, model)
+            ArithmeticDecoder.update_model(symbol, model)
             subband[i] = symbol
             decoded_symbols.append(symbol)
 

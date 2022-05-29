@@ -65,7 +65,7 @@ class ArithmeticCoder:
                 model = ArithmeticCoder.get_model(subband, subband_i, int(np.sqrt(subbands_shape[current_shape])),
                                                   subband_shift, current_shape)
                 ArithmeticCoder.encode_symbol(symbol, model)
-                # ArithmeticCoder.update_model(symbol, model)
+                ArithmeticCoder.update_model(symbol, model)
 
                 processed_count = processed_count + 1
                 subband_i += 1
