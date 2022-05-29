@@ -31,16 +31,21 @@ class ModelsSelector:
 
     @staticmethod
     def get_model_index(neighbors: list, subband_number: int) -> int:
-        if subband_number in [0, 3, 6, 9, 12]:
-            return 4
+        model_index = 0
 
-        # return ModelsSelector.Model.predict([neighbors])[0]
+        # model_index = ModelsSelector.Model.predict([neighbors])[0]
         normed_mean = sum(neighbors) / len(neighbors) / 256
 
         if normed_mean <= 0.45:
-            return 3
+            model_index = 3
         if normed_mean <= 0.47:
-            return 2
+            model_index = 2
         if normed_mean <= 0.5:
-            return 1
-        return 0
+            model_index = 1
+        if normed_mean > 0.5:
+            model_index = 0
+
+        if subband_number in [0, 3, 6, 9, 12]:
+            model_index += 4
+
+        return model_index

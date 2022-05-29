@@ -12,20 +12,26 @@ from SignalStorage import SignalStorage
 
 def set_sample():
     # чтение изображения
-    image_directory = 'TrainImages'
+    image_directory = 'TestImages'
     ArithmeticCoder.cum_freqs = [np.loadtxt('cum_freqs_0.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_1.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_2.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_3.txt', delimiter=',', dtype=np.uint64),
-                                 np.loadtxt('cum_freqs_4.txt', delimiter=',', dtype=np.uint64)]
+                                 np.loadtxt('cum_freqs_4.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_5.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_6.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_7.txt', delimiter=',', dtype=np.uint64)]
 
     ArithmeticDecoder.cum_freqs = [np.loadtxt('cum_freqs_0.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_1.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_2.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_3.txt', delimiter=',', dtype=np.uint64),
-                                 np.loadtxt('cum_freqs_4.txt', delimiter=',', dtype=np.uint64)]
+                                 np.loadtxt('cum_freqs_4.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_5.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_6.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_7.txt', delimiter=',', dtype=np.uint64)]
 
-    for image_name in ['17.png']:
+    for image_name in ['Lena.tif']:
         print(image_name)
         image = ImageProvider.read_with_norm(os.path.join(image_directory, image_name)).astype(np.float32)
         # вейвлет-преобрзование
@@ -56,7 +62,18 @@ def set_models():
                                  np.loadtxt('cum_freqs_1.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_2.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_3.txt', delimiter=',', dtype=np.uint64),
-                                 np.loadtxt('cum_freqs_4.txt', delimiter=',', dtype=np.uint64)]
+                                 np.loadtxt('cum_freqs_4.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_5.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_6.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_7.txt', delimiter=',', dtype=np.uint64)]
+    ArithmeticDecoder.cum_freqs = [np.loadtxt('cum_freqs_0.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_1.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_2.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_3.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_4.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_5.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_6.txt', delimiter=',', dtype=np.uint64),
+                                 np.loadtxt('cum_freqs_7.txt', delimiter=',', dtype=np.uint64)]
 
     train_image_directory = 'TrainImages'
     images = [os.path.join(train_image_directory, img) for img in os.listdir(train_image_directory)]
@@ -74,18 +91,19 @@ def set_models():
         coder.encode_subbands(subbands, optimal_model_searcher)
         # contexts = optimal_model_searcher.get_SymbolContext_on_optimal_model_map()
         # restored_subbands = coder.decode_subbands()
-        #
+
         # restored_subbands = Quantizer.dequantize(restored_subbands)
-        #
+
         # image = WaveletTransform.i_transform(restored_subbands)
-        # ImageProvider.WriteImage('123.tif', image)
-        # ImageProvider.WriteImage('123.png', image)
+        # ImageProvider.WriteImage('123.png', (image * 256).astype(np.uint8))
 
     np.savetxt('cum_freqs_0.txt', ArithmeticCoder.cum_freqs[0], delimiter=',', fmt="%i")
     np.savetxt('cum_freqs_1.txt', ArithmeticCoder.cum_freqs[1], delimiter=',', fmt="%i")
     np.savetxt('cum_freqs_2.txt', ArithmeticCoder.cum_freqs[2], delimiter=',', fmt="%i")
     np.savetxt('cum_freqs_3.txt', ArithmeticCoder.cum_freqs[3], delimiter=',', fmt="%i")
     np.savetxt('cum_freqs_4.txt', ArithmeticCoder.cum_freqs[4], delimiter=',', fmt="%i")
-
+    np.savetxt('cum_freqs_5.txt', ArithmeticCoder.cum_freqs[5], delimiter=',', fmt="%i")
+    np.savetxt('cum_freqs_6.txt', ArithmeticCoder.cum_freqs[6], delimiter=',', fmt="%i")
+    np.savetxt('cum_freqs_7.txt', ArithmeticCoder.cum_freqs[7], delimiter=',', fmt="%i")
 
 set_sample()
