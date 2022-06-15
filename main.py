@@ -1,5 +1,6 @@
 import numpy as np
 import os
+from skimage.metrics import structural_similarity
 from OptimalModelSearcher import OptimalModelSearcher
 from WaveletTransform import WaveletTransform
 from ArithmeticCoderFacade import ArithmeticCoderFacade
@@ -31,7 +32,7 @@ def set_sample():
                                  np.loadtxt('cum_freqs_6.txt', delimiter=',', dtype=np.uint64),
                                  np.loadtxt('cum_freqs_7.txt', delimiter=',', dtype=np.uint64)]
 
-    for image_name in ['barbara.pgm']:
+    for image_name in ['Lena.tif']:
         print(image_name)
         image = ImageProvider.read_with_norm(os.path.join(image_directory, image_name)).astype(np.float32)
         # вейвлет-преобрзование
@@ -54,13 +55,19 @@ def set_sample():
         psnr = 10 * np.log10((512 * 512 / square_error))
         bpp = 8 * coded_image_len / 512 / 512
         # np.savetxt("OptimalModelSearcher_{0}.txt".format(image_name), optimal_model_searcher.get_sample(),
-        #            delimiter=',', fmt="%i")
+        #            delimiter=',', \fmt="%i")
         print("PSNR = {0} bpp = {1}".format(psnr, bpp))
-        restored_subbands = coder.decode_subbands()
+        (score, diff) = structural_similarity(image_r, image, full=True)
+        diff = (diff * 255).astype("uint8")
 
-        restored_subbands = Quantizer.dequantize(restored_subbands)
-        image = WaveletTransform.i_transform(restored_subbands)
-        ImageProvider.WriteImage('123.png', (image * 256).astype(np.uint8))
+        # 6. You can print only the score if you want
+        print("SSIM: {}".format(score))
+        print("q = {}".format(Quantizer.quantize_step))
+        # restored_subbands = coder.decode_subbands()
+
+        # restored_subbands = Quantizer.dequantize(restored_subbands)
+        # image = WaveletTransform.i_transform(restored_subbands)
+        # ImageProvider.WriteImage('123.png', (image * 256).astype(np.uint8))
 
 def set_models():
     ArithmeticCoder.cum_freqs = [np.loadtxt('cum_freqs_0.txt', delimiter=',', dtype=np.uint64),
@@ -120,4 +127,5 @@ def set_models():
     # np.savetxt('cum_freqs_6.txt', ArithmeticCoder.cum_freqs[6], delimiter=',', fmt="%i")
     # np.savetxt('cum_freqs_7.txt', ArithmeticCoder.cum_freqs[7], delimiter=',', fmt="%i")
 
-set_models()
+set_sample()
+
