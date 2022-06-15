@@ -12,6 +12,12 @@ color_list = [CB91_Blue, CB91_Pink, CB91_Green, CB91_Amber,
               CB91_Purple, CB91_Violet]
 plt.rcParams['axes.prop_cycle'] = plt.cycler(color=color_list)
 
+
+# jpeg 2000
+y = [0.9728, 0.9678, 0.9608]
+x = [0.329, 0.292, 0.23]
+plt.plot(x, y, label='JPEG 2000', color=color_list[1])
+
 # Контекстное кодирование
 y = [0.9628840869568428, 0.961462494633955, 0.9539078298346202]
 x = [0.34893798828125, 0.33349609375, 0.27044677734375]
